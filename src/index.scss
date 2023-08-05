@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-slate-900 font-body;
+    @apply bg-slate-900 font-body text-white;
   }
 }
 @layer components {
@@ -15,5 +15,8 @@
   .movie-list .swiper-slide {
     width: 300px !important;
     height: auto;
+  }
+  .banner .swiper {
+    height: 100%;
   }
 }
