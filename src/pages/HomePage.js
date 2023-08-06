@@ -10,19 +10,19 @@ const HomePage = () => {
         <h2 className="capitalize text-white mb-10 text-3xl font-bold">
           Now playing
         </h2>
-        <MovieList typeMovie={"now_playing"}></MovieList>
+        <MovieList type="now_playing"></MovieList>
       </section>
       <section className="movies-layout page-container pb-10">
         <h2 className="capitalize text-white mb-10 text-3xl font-bold">
           Top Rated
         </h2>
-        <MovieList typeMovie={"top_rated"}></MovieList>
+        <MovieList type="top_rated"></MovieList>
       </section>
       <section className="movies-layout page-container pb-10">
         <h2 className="capitalize text-white mb-10 text-3xl font-bold">
           Trending
         </h2>
-        <MovieList typeMovie={"popular"}></MovieList>
+        <MovieList type="popular"></MovieList>
       </section>
     </Fragment>
   );

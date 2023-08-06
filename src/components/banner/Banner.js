@@ -1,12 +1,17 @@
 import React from "react";
 import useSWR from "swr";
 import { fetcher } from "../../configs/config";
-import { getDataTheMovieDBApi } from "../../configs/api";
+import { getHrefTheMovieApi, tmdbAPI } from "../../configs/api";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { pathImage } from "../../configs/api";
+import Button from "../button/Button";
+import { useNavigate } from "react-router-dom";
 
 const Banner = () => {
-  const { data, error, isLoading } = useSWR(getDataTheMovieDBApi("upcoming"), fetcher);
+  const { data, error, isLoading } = useSWR(
+    tmdbAPI.getMovieList("upcoming"),
+    fetcher
+  );
   const movies = data?.results || [];
   console.log(movies);
 
@@ -24,12 +29,13 @@ const Banner = () => {
   );
 };
 function BannerItem({ item }) {
-  const { title, poster_path } = item;
+  const { title, poster_path, id } = item;
+  const navigate = useNavigate();
   return (
     <div className="w-full h-full rounded-lg relative">
       <div className="overlay absolute inset-0 bg-gradient-to-t from-[rgba(0,0,0,0.5)] to-[rgba(0,0,0,0.5)] rounded-lg"></div>
       <img
-        src={`${pathImage}${poster_path}`}
+        src={tmdbAPI.getImageOriginal(poster_path)}
         alt=""
         className="w-full h-full object-cover rounded-lg"
       />
@@ -46,9 +52,9 @@ function BannerItem({ item }) {
             Adventure
           </span>
         </div>
-        <button className="py-3 px-6 rounded-lg bg-primary text-white font-medium">
+        <Button onClick={() => navigate(`/movie/${id}`)} type="primary">
           Watch Now
-        </button>
+        </Button>
       </div>
     </div>
   );

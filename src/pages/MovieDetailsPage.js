@@ -2,17 +2,15 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
 import { fetcher } from "../configs/config";
-import {
-  getDataTheMovieDBApi,
-  getMovieCreditsApi,
-  getMovieVideosApi,
-  pathImage,
-} from "../configs/api";
+import { tmdbAPI } from "../configs/api";
+import MovieVideos from "components/movie/MovieVideos";
+import MovieCredits from "components/movie/MovieCredits";
+import MovieSimilar from "components/movie/MovieSimilar";
 
 const MovieDetailsPage = () => {
   const { movieId } = useParams();
   const { data, error, isLoading } = useSWR(
-    getDataTheMovieDBApi(movieId),
+    tmdbAPI.getMovieList(movieId),
     fetcher
   );
   if (!data) return null;
@@ -25,14 +23,16 @@ const MovieDetailsPage = () => {
           <div
             className="w-full h-full bg-cover bg-no-repeat"
             style={{
-              backgroundImage: `url(${pathImage}${backdrop_path})`,
+              backgroundImage: `url(${tmdbAPI.getImageOriginal(
+                backdrop_path
+              )})`,
             }}
           ></div>
         </div>
         <div className="w-full h-[400px] max-w-[900px] mx-auto -mt-[200px] relative z-10 pb-10">
           <img
             className="w-full h-full object-cover rounded-xl"
-            src={`${pathImage}${poster_path}`}
+            src={tmdbAPI.getImageOriginal(poster_path)}
             alt=""
           />
         </div>
@@ -54,85 +54,38 @@ const MovieDetailsPage = () => {
           {overview}
         </p>
         <div className="mx-10">
-          <MovieCredits></MovieCredits>
-          <MovieVideos></MovieVideos>
-          <MovieSimilar></MovieSimilar>
+          <MovieMeta type="credits"></MovieMeta>
+          <MovieMeta type="videos"></MovieMeta>
+          <MovieMeta type="similar"></MovieMeta>
         </div>
       </div>
     </>
   );
 };
-
-function MovieCredits() {
+function MovieMeta({ type = "videos" }) {
   const { movieId } = useParams();
   const { data, error, isLoading } = useSWR(
-    getMovieCreditsApi(movieId),
-    fetcher
-  );
-  if (!data) return null;
-  const { cast } = data;
-  if (!cast || cast.length <= 0) return null;
-  return (
-    <div className="py-10">
-      <h2 className="text-center text-3xl mb-10">Casts</h2>
-      <div className="grid grid-cols-4 gap-5">
-        {cast.length > 0 &&
-          cast.slice(0, 4).map((item) => (
-            <div className="cast-item" key={item.id}>
-              <img
-                src={`${pathImage}${item.profile_path}`}
-                alt=""
-                className="w-full h-[350px] object-cover rounded-lg mb-3"
-              />
-              <h3 className="text-center text-xl font-medium">{item.name}</h3>
-            </div>
-          ))}
-      </div>
-    </div>
-  );
-}
-function MovieVideos() {
-  const { movieId } = useParams();
-  const { data, error, isLoading } = useSWR(
-    getMovieVideosApi(movieId),
+    tmdbAPI.getMovieList(movieId, type),
     fetcher
   );
   if (!data) return null;
   const { results } = data;
-  if (!results || results.length <= 0) return null;
-  console.log(data);
-  return (
-    <>
-      <div className="flex flex-col gap-10">
-        {results.slice(0, 2).map((item) => (
-          <div key={item.id}>
-            <h3 className="mb-5 text-xl font-medium inline-block bg-secondary p-3">
-              {item.name}
-            </h3>
-            <div className="w-full aspect-video">
-              <iframe
-                width="1189"
-                height="669"
-                src={`https://www.youtube.com/embed/${item.key}`}
-                title="Barbie - The Kens - Warner Bros. UK &amp; Ireland"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen
-                className="w-full h-full object-fill"
-              ></iframe>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-function MovieSimilar() {
-  return (
-    <div className="py-10">
-      <h2 className="text-3xl font-medium mb-10">Similar Movies</h2>
-    </div>
-  );
+  switch (type) {
+    case "videos":
+      return (
+        <MovieVideos
+          movies={results}
+          isLoading={isLoading}
+          error={error}
+        ></MovieVideos>
+      );
+    case "credits":
+      return <MovieCredits cast={results}></MovieCredits>;
+    case "similar":
+      return <MovieSimilar movieId={movieId}></MovieSimilar>;
+    default:
+      break;
+  }
 }
 
 export default MovieDetailsPage;
